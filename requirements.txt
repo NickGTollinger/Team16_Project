@@ -1,3 +1,0 @@
-# Run this before, it'll install the libraries y'all need
-
-pip install transformers[torch] datasets scikit-learn torch
