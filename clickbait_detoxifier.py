@@ -6,19 +6,18 @@ import torch
 import csv
 from transformers import BertTokenizer, BertForSequenceClassification
 
-# === SETUP ===
+# Set up API key, cohere, API key limitations, etc etc
 API_KEY = "SJaNxcRTObQ9wpTcEDx69cjCJZoXhkt3T91SfnXX"
 co = cohere.Client(API_KEY)
 
-RATE_LIMIT = 40
-SLEEP_DURATION = 60
-THRESHOLD = 0.3
-MAX_CALLS = 1000  # Hard total API call limit
+RATE_LIMIT = 40                     # Max API calls per minute for trial key
+SLEEP_DURATION = 60                # Seconds to sleep after hitting rate limit
+THRESHOLD = 0.3                    # BERT confidence threshold to classify as clickbait
+MAX_CALLS = 1000                   # Max total Cohere API calls allowed (due to trial key)
 
-# Global counter
+# Global counter to track total API usage
 total_api_calls = 0
 
-# Load BERT model
 BERT_MODEL_DIR = "bert_clickbait_model"
 bert_tokenizer = BertTokenizer.from_pretrained(BERT_MODEL_DIR)
 bert_model = BertForSequenceClassification.from_pretrained(BERT_MODEL_DIR)
@@ -26,7 +25,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 bert_model.to(device)
 bert_model.eval()
 
-# Prompt builder
+# Prompt function, needed for each API call
 def build_prompt(headline):
     return f"""
 Rephrase the following headlines to remove hyperbole and clickbait while keeping them informative and grammatically complete.
@@ -46,6 +45,7 @@ Neutral: Scientists report new milestone in space exploration.
 Clickbait: {headline}
 Neutral:"""
 
+# Cohere API call with our previously shown prompt and with a low temperature value for consistent-ish results
 def detoxify_headline(headline):
     prompt = build_prompt(headline)
     try:
@@ -60,6 +60,7 @@ def detoxify_headline(headline):
     except Exception as e:
         return f"[ERROR: {str(e)}]"
 
+# Runs the BERT model at the assigned threshold to assess the detox success rate
 def run_bert_on_headlines(headlines, batch_size=32):
     confidences = []
     for i in tqdm(range(0, len(headlines), batch_size), desc="Re-evaluating with BERT"):
@@ -68,10 +69,11 @@ def run_bert_on_headlines(headlines, batch_size=32):
         with torch.no_grad():
             outputs = bert_model(**inputs)
             probs = torch.nn.functional.softmax(outputs.logits, dim=1)
-            confidences.extend(probs[:, 1].tolist())
+            confidences.extend(probs[:, 1].tolist())  
     predicted = [1 if c > THRESHOLD else 0 for c in confidences]
     return predicted, confidences
 
+# This is just tracking the progress as you run the code, don't worry too much about this.
 def process_file(input_file, output_file):
     global total_api_calls
     if total_api_calls >= MAX_CALLS:
@@ -112,6 +114,7 @@ def process_file(input_file, output_file):
     df.to_csv(output_file, index=False, quoting=csv.QUOTE_MINIMAL)
     print(f"Saved output to: {output_file}")
 
+# Detoxify the kaggle dataset and new dataset
 if __name__ == "__main__":
     datasets = [
         ("bert_predictions_detoxify_clickbait_only.csv", "new_dataset_results.csv"),
