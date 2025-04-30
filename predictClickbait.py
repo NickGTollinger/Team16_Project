@@ -60,7 +60,7 @@ def evaluate_dataset(input_file, output_prefix):
 
     # Here we sweep over different BERT "thresholds." This means that if the probability of something being clickbait
     # is over this threshold value, it will be considered clickbait. Otherwise it's considered non-clickbait.
-    # this is how I selected our presumed best threshold of 0.9. It had equal results or better results than others.
+    # I selected 0.3 as our threshold for run_BERT and clickbait_detoxification based on these statistics
     thresholds = [i/100 for i in range(10, 91, 5)]  
 
     accuracies = []
