@@ -36,3 +36,7 @@ new_dataset_results is the detoxified headlines of the new dataset
 kaggle_dataset_results is the detoxified headlines of the kaggle dataset
 
 training.csv, validation.csv, and testing.csv are an 80/10/10 split of the kaggle dataset respectively. They were used to train our BERT model.
+
+eval_predictions_refactored.py evaluates prediction CSVs with accuracy, precision, recall, and F1-score. Supports common label column formats.  
+py -3.11 eval_predictions.py --input_csv your_predictions.csv
+
