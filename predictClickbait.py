@@ -5,7 +5,7 @@ from tqdm import tqdm
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import os
-
+import matplotlib.patches as patches
 # Note: This uses the original dataset that we trained BERT on. run_BERT and detox.py uses a new one for reasons explained in run_BERT
 
 # Load our BERT model and tokenizer, same initial set-up as our run_BERT
@@ -99,6 +99,42 @@ def evaluate_dataset(input_file, output_prefix):
 
     # Plot F1 Score
     plt.figure(figsize=(8,6))
+
+    # Display a nicely styled metrics table
+    fig, ax = plt.subplots(figsize=(6.5, 0.6 + len(thresholds)*0.4))  # narrower width
+    ax.axis('off')
+
+    column_labels = ["Threshold", "Accuracy", "Precision", "Recall", "F1 Score"]
+    table_data = [
+        [f"{t:.2f}", f"{a:.4f}", f"{p:.4f}", f"{r:.4f}", f"{f:.4f}"]
+        for t, a, p, r, f in zip(thresholds, accuracies, precisions, recalls, f1_scores)
+    ]
+
+    table = ax.table(
+        cellText=table_data,
+        colLabels=column_labels,
+        loc='center',
+        cellLoc='center',
+        colColours=["#40466e"] * 5,
+        cellColours=[["#f1f1f2"] * 5 if i % 2 == 0 else ["#ffffff"] * 5 for i in range(len(table_data))]
+    )
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(0.9, 1.2)  # reduce horizontal scaling
+
+    # Styling headers and cells
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:
+            cell.set_text_props(weight='bold', color='white')
+        else:
+            cell.set_text_props(color='#333333')
+
+    plt.title(f"Threshold Metrics Summary ({output_prefix})", fontsize=12, pad=12)
+    plt.tight_layout()
+    plt.show()
+
+
     plt.plot(thresholds, f1_scores, marker='o', label='F1 Score')
     plt.xlabel('Threshold')
     plt.ylabel('F1 Score')
@@ -129,8 +165,8 @@ def evaluate_dataset(input_file, output_prefix):
     plt.show()
 
 if __name__ == "__main__":
-    evaluate_dataset("testing.csv", "original_set")
-    evaluate_dataset("detoxify_dataset.csv", "detox_set")
+    evaluate_dataset("testing.csv", "kaggle_dataset")
+    evaluate_dataset("detoxify_dataset.csv", "new_dataset")
 
 # Results show an upward trend of accuracy vs threshold using the original dataset of 3200 samples
 # Results for the new smaller dataset show a downward trend of accuracy vs threshold

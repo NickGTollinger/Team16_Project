@@ -74,6 +74,41 @@ def evaluate_detoxified_dataset(input_file, output_prefix):
 
 
     plt.figure(figsize=(8, 6))
+       # Ultra-condensed Threshold vs Clickbait % table
+    fig, ax = plt.subplots(figsize=(3.8, 0.6 + len(thresholds) * 0.33))  # even narrower
+    ax.axis('off')
+
+    col_labels = ["Threshold", "% Clickbait"]
+    table_data = [
+        [f"{t:.2f}", f"{cb:.1f}%"]
+        for t, cb in zip(thresholds, clickbait_pcts)
+    ]
+
+    table = ax.table(
+        cellText=table_data,
+        colLabels=col_labels,
+        loc='center',
+        cellLoc='center',
+        colColours=["#40466e"] * 2,
+        cellColours=[["#f1f1f2"] * 2 if i % 2 == 0 else ["#ffffff"] * 2 for i in range(len(table_data))]
+    )
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+    table.scale(0.65, 1.1)  # max horizontal compression
+
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:
+            cell.set_text_props(weight='bold', color='white')
+        else:
+            cell.set_text_props(color='#333333')
+
+    plt.title(f"T vs %CB ({output_prefix})", fontsize=10, pad=8)
+    plt.tight_layout()
+    plt.show()
+
+
+
     plt.plot(thresholds, clickbait_pcts, marker='o', label="Clickbait %")
     plt.xlabel("Threshold")
     plt.ylabel("Clickbait Percentage")
@@ -103,5 +138,5 @@ def evaluate_detoxified_dataset(input_file, output_prefix):
 
 # === Run on both detox output datasets ===
 if __name__ == "__main__":
-    evaluate_detoxified_dataset("new_dataset_results.csv", "new_dataset")
-    evaluate_detoxified_dataset("kaggle_dataset_results.csv", "kaggle_dataset")
+    evaluate_detoxified_dataset("new_dataset_results.csv", "detoxified_new_dataset")
+    evaluate_detoxified_dataset("kaggle_dataset_results.csv", "detoxified_kaggle_dataset")

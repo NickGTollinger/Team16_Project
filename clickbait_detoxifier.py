@@ -7,7 +7,7 @@ import csv
 from transformers import BertTokenizer, BertForSequenceClassification
 
 # Set up API key, cohere, API key limitations, etc etc
-API_KEY = "SJaNxcRTObQ9wpTcEDx69cjCJZoXhkt3T91SfnXX"
+API_KEY = "API_KEY_NOT_SHOWN_FOR_SECURITY_PURPOSES"
 co = cohere.Client(API_KEY)
 
 RATE_LIMIT = 40                     # Max API calls per minute for trial key
