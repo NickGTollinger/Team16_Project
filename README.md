@@ -22,8 +22,6 @@ py -3.11 BERT_trainer.py
 
 checkDetoxifierAccuracy.py is exactly what you think, it checks the accuracy of the resulting file (currently kaggle_dataset_results.csv)
 
-predictDetox.py will give statistics on the detoxified headlines
-
 CSVs Used:
 bert_predictions_testing and bert_predictions_testing_clickbait_only are the full predictions on the Kaggle dataset, and its predictions of what is clickbait respectively
 
